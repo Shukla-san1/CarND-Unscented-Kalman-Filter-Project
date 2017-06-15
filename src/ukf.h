@@ -67,7 +67,16 @@ public:
   ///* Sigma point spreading parameter
   double lambda_;
 
+  //set measurement dimension, radar can measure r, phi, and r_dot
+   int n_z_ ;
+   float NIS_lidar;
+   float NIS_radar;
 
+   //
+   MatrixXd Zsig_;
+
+   MatrixXd R_laser_;
+   MatrixXd H_laser_;
   /**
    * Constructor
    */
@@ -102,6 +111,13 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+  void AugmentedSigmaPoints(MatrixXd* Xsig_out);
+  MatrixXd SigmaPointPrediction(MatrixXd Xsig_aug, double delta_t);
+  void PredictMeanAndCovariance(VectorXd* x_pred, MatrixXd* P_pred);
+  void PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out);
+  float NormalizePhi(float angle);
+  void SetWeight();
+
 };
 
 #endif /* UKF_H */
