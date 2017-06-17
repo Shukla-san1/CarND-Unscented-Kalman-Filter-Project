@@ -193,7 +193,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 void UKF::Prediction(double delta_t) {
 
  /*
-  * In this function we first create augmented sigma points and then predict sigma points , Using prrdicted sigmapoints then predict state and covariance.
+  * In this function we first create augmented sigma points and then predict sigma points , Using predicted sigmapoints then predict state and covariance.
   * Input: delta_t between to sensor reading
   * Output:
   * x_: state vector
@@ -219,7 +219,7 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
 	  * NIS_lidar
 	  */
 
-	cout << "Update Lidar Funtion" << endl;
+
 
 	float px = meas_package.raw_measurements_[0];
 	float py = meas_package.raw_measurements_[1];
@@ -243,7 +243,7 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
 	// NIS calculation for Lidar
 
 	NIS_lidar = y.transpose()*Si*y;
-	std::cout << "NIS_lidar : " << std::endl << NIS_lidar << std::endl;
+	std::cout << "NIS_lidar : " << NIS_lidar << std::endl;
 }
 
 void UKF::UpdateRadar(MeasurementPackage meas_package) {
@@ -316,12 +316,18 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 
 	  //NIS calculation for Radar
 	  NIS_radar = z_diff.transpose()*S.inverse()*z_diff;
-	  std::cout << "NIS_radar : " << std::endl << NIS_radar << std::endl;
+	  std::cout << "NIS_radar : "<< NIS_radar << std::endl;
 }
 
 
 
 void UKF::AugmentedSigmaPoints(MatrixXd* Xsig_out) {
+	/*
+		  * This function is  used to create augmented sigma points
+		  * Input: Pointer to matrix to store the aumented points
+		  * Output: Void
+		  *
+	*/
 
 
   //create augmented mean vector
@@ -367,6 +373,16 @@ void UKF::AugmentedSigmaPoints(MatrixXd* Xsig_out) {
 }
 
 MatrixXd UKF::SigmaPointPrediction(MatrixXd Xsig_aug, double delta_t) {
+
+	/*
+		  * This function is  used for prediction of sigma points.
+		  * Input:
+		     * Xsig_aug: Matrix of augmented sigma points
+		     * Delat_t: times difference between two measurments.
+		  * Output:
+		     * Matrix of size 5X15
+
+ */
 
 
   MatrixXd Xsig_pred = MatrixXd(n_x_, 2 * n_aug_ + 1);
@@ -426,6 +442,11 @@ MatrixXd UKF::SigmaPointPrediction(MatrixXd Xsig_aug, double delta_t) {
 
 void UKF::SetWeight()
 {
+	/*
+		  * This function is  used to set weights vector which can be calculated once and used later in diffferent other functions.
+
+	*/
+
 	 double weight_0 = lambda_/(lambda_+n_aug_);
 	  weights_(0) = weight_0;
 	  for (int i=1; i<2*n_aug_+1; i++) {
@@ -435,6 +456,18 @@ void UKF::SetWeight()
 }
 
 void UKF::PredictMeanAndCovariance(VectorXd* x_out, MatrixXd* P_out) {
+
+	/*
+		  * This function is  used to predict mean and covariance.
+		  * Input:
+		        *  Pointer to matrix to store the covariance matrix.
+		        *  Pointer to Vector to store mean
+		   * Output:
+		      * update predicted state mean
+		      * update Corvariance matrix of size 5X5
+
+   */
+
 
 
   //create vector for predicted state
@@ -473,6 +506,18 @@ void UKF::PredictMeanAndCovariance(VectorXd* x_out, MatrixXd* P_out) {
 }
 
 void UKF::PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out) {
+
+	/*
+		  * This function is  used to transform sigma points into meausurements space and calculate predicted mean and measurments covariances matrix.
+		  * Input:
+		         * Pointer to Matrix to store measurements covariance matrix.
+		         * Pointer to Vector to store mean predicted measurements.
+		   * Output:
+		        *  calculate and update the measurements covariance matrix
+		        *  Calculate and update store mean predicted measurements.
+
+	 */
+
 
 
   //transform sigma points into measurement space
@@ -531,6 +576,15 @@ void UKF::PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out) {
 
 
 float UKF::NormalizePhi(float angle){
+
+	/**
+
+	  * This method is to normalized the angle, so that it should remain between pi and -pi
+	  * Input: take angle as input
+	  * output: return the normalized angle
+
+	*/
+
 
 	if(fabs(angle) > M_PI){
 			angle -= round(angle / (2. * M_PI)) * (2.* M_PI);
