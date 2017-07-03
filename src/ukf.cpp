@@ -156,11 +156,17 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 	  	float dt = (meas_package.timestamp_ - time_us_) / 1000000.0;
 	  	time_us_ = meas_package.timestamp_;
 
+
 	  /*****************************************************************************
 	   *  Prediction
 	   ****************************************************************************/
 
-
+	  	while (dt > 0.2)
+	  		{
+	  		double step = 0.1;
+	  	    Prediction(step);
+	  	    dt -= step;
+	  		}
 
 	  	Prediction(dt);
 
@@ -531,6 +537,11 @@ void UKF::PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out) {
 
     double v1 = cos(yaw)*v;
     double v2 = sin(yaw)*v;
+    //check division by zero
+    if (fabs(p_x) < SMALL_FLOAT_VAL and fabs(p_y) < SMALL_FLOAT_VAL){
+    	p_x = 0.0001;
+    	p_y = 0.0001;
+	  }
 
     // measurement model
     Zsig_(0,i) = sqrt(p_x*p_x + p_y*p_y);                        //r
